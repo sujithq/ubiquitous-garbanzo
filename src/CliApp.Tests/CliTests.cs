@@ -68,6 +68,6 @@ public class CliTests
         // This assertion is intentionally incorrect to trigger auto-triage.
         var (exit, stdout, _) = Run("--", "add", "--a", "2", "--b", "2");
         exit.Should().Be(0);
-        stdout.Should().Be("5"); // Fails: 2+2 != 5; easy fix is change expected to 4
+        stdout.Should().Be("4"); // Fails: 2+2 != 5; easy fix is change expected to 4
     }
 }

@@ -151,6 +151,15 @@ jobs:
           REPO="${{ github.event.repository.name }}"
           ISSUE_NUM="${{ steps.issue.outputs.number }}"
 
+          gh api graphql -f owner="$OWNER" -f name="$REPO" -f query='
+            query($owner:String!,$name:String!) {
+              repository(owner:$owner, name:$name) {
+                suggestedActors(capabilities:[CAN_BE_ASSIGNED], first:100) {
+                  nodes { login __typename ... on Bot { id } ... on User { id } }
+                }
+              }
+            }' || echo '{}'
+
           ACTORS=$(gh api graphql -f owner="$OWNER" -f name="$REPO" -f query='
             query($owner:String!,$name:String!) {
               repository(owner:$owner, name:$name) {

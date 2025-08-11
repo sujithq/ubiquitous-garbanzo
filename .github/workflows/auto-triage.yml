@@ -123,13 +123,19 @@ jobs:
       - name: Create issue
         id: issue
         uses: actions/github-script@v7
+        env:
+          BRANCH: ${{ steps.vars.outputs.branch }}
+          RUN_URL: ${{ steps.vars.outputs.run_url }}
+          SHA: ${{ steps.vars.outputs.sha }}
+          AI: ${{ steps.ai.outputs.response }}
         with:
           script: |
             const owner = context.repo.owner;
             const repo = context.repo.repo;
-            const title = `CI failure: ${context.payload.workflow_run?.name || 'CI'} on ${{ steps.vars.outputs.branch }}`;
-            const ai = `${{ steps.ai.outputs.response }}`;
-            const body = `### AI summary\n\n${ai || 'No AI summary produced'}\n\n---\n\nRun: ${{ steps.vars.outputs.run_url }}\nCommit: ${{ steps.vars.outputs.sha }}`;
+            const title = `CI failure: ${(context.payload.workflow_run?.name ?? 'CI')} on ${process.env.BRANCH}`;
+            const ai = process.env.AI || '';
+            const summary = ai.trim() ? ai : 'No AI summary produced';
+            const body = `### AI summary\n\n${summary}\n\n---\n\nRun: ${process.env.RUN_URL}\nCommit: ${process.env.SHA}`;
             const res = await github.rest.issues.create({ owner, repo, title, body, labels: ['ci-failure','needs-triage'] });
             core.setOutput('number', res.data.number.toString());
 
@@ -139,12 +145,13 @@ jobs:
         uses: actions/github-script@v7
         env:
           USER_PAT: ${{ secrets.PAT_WITH_ISSUES_WRITE }}
+          ISSUE_NUMBER: ${{ steps.issue.outputs.number }}
         with:
           github-token: ${{ env.USER_PAT }}
           script: |
             const owner = context.repo.owner;
             const repo = context.repo.repo;
-            const issue_number = Number('${{ steps.issue.outputs.number }}');
+            const issue_number = Number(process.env.ISSUE_NUMBER);
 
             // GraphQL to get suggested actors
             const actorsRes = await github.graphql(

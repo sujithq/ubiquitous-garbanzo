@@ -13,20 +13,20 @@ if (args.Length == 0)
 switch (args[0])
 {
     case "greet":
-    {
-        var name = GetOption("--name", "-n");
-        if (string.IsNullOrWhiteSpace(name)) return Usage();
-        Console.WriteLine($"Hello, {name}!");
-        return 0;
-    }
+        {
+            var name = GetOption("--name", "-n");
+            if (string.IsNullOrWhiteSpace(name)) return Usage();
+            Console.WriteLine($"Hello, {name}!");
+            return 0;
+        }
     case "add":
-    {
-        var aStr = GetOption("--a");
-        var bStr = GetOption("--b");
-        if (!int.TryParse(aStr, out var a) || !int.TryParse(bStr, out var b)) return Usage();
-        Console.WriteLine(a + b);
-        return 0;
-    }
+        {
+            var aStr = GetOption("--a");
+            var bStr = GetOption("--b");
+            if (!int.TryParse(aStr, out var a) || !int.TryParse(bStr, out var b)) return Usage();
+            Console.WriteLine(a + b);
+            return 0;
+        }
     case "--help":
     case "-h":
         return Usage();
